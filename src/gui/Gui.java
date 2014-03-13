@@ -17,6 +17,7 @@ import common.IUser;
 import mediator.Mediator;
 
 import java.awt.*;
+import java.util.Vector;
 
 
 public class Gui extends JPanel implements IGui {
@@ -52,6 +53,7 @@ public class Gui extends JPanel implements IGui {
 		users.addElement(dummyUser1);
 		users.addElement(dummyUser2);
 		addDownload(dummyUser1, dummyUser2, dummyFile);
+		setDownloadProgress(dummyUser1, dummyUser2, dummyFile, 50);
 	}
 	
 	public void init() {
@@ -116,16 +118,35 @@ public class Gui extends JPanel implements IGui {
 				src,
 				dest,
 				file,
-				"3%",
-				"Started"
+				"0%",
+				"New"
 				});
 	}
 
 	@Override
 	public void setDownloadProgress(IUser src, IUser dest, IFile file,
 			int progress) {
-		//String prog = String.format("%s%%", progress);
-		// TODO Auto-generated method stub
+		String prog = String.format("%s%%", progress);
+		
+		for (int row = 0; row < transfers.getRowCount(); row++) {
+			IUser rSrc = (IUser)transfers.getValueAt(row, 0);
+			IUser rDest = (IUser)transfers.getValueAt(row, 1);
+			IFile rFile = (IFile)transfers.getValueAt(row, 2);
+			
+			if (!rSrc.getName().equals(src.getName())) continue;
+			if (!rDest.getName().equals(dest.getName())) continue;
+			if (!rFile.getName().equals(file.getName())) continue;
+			
+			transfers.setValueAt(prog, row, 3);
+			
+			if (progress > 0) {
+				transfers.setValueAt("Downloading", row, 4);
+			}
+			
+			if (progress >= 100) {
+				transfers.setValueAt("Complete", row, 4);
+			}
+		}
 	}
 	
 	public void showFiles() {
