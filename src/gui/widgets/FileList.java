@@ -23,6 +23,7 @@ public class FileList extends JList<IFile> implements WidgetCommand {
 
 	@Override
 	public void execute() {
-		med.downloadFile(gui.getSelectedFile(), gui.getSelectedUser());
+		if (gui.getSelectedFile() != null && gui.getSelectedUser() != null)
+			med.downloadFile(gui.getSelectedFile(), gui.getSelectedUser());
 	}
 }
