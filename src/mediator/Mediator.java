@@ -46,4 +46,9 @@ public class Mediator {
 	void downloadFile(IFile file, IUser owner) {
 		network.downloadFile(file, owner);
 	}
+	
+	/* ClientService specific actions */
+	public IUser getSelfUser() {
+		return clientService.getSelfUser();
+	}
 }

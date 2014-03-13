@@ -8,6 +8,7 @@ import common.IUser;
 
 public class ClientServiceMock implements IClientService {
 	private Mediator med;
+	private IUser me;
 	
 	public ClientServiceMock(Mediator med) {
 		this.med = med;
@@ -17,11 +18,14 @@ public class ClientServiceMock implements IClientService {
 	@Override
 	public void run() {
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(200);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 		UserFactory ufact = new UserFactory();
+		
+		me = ufact.produce("ME");
+		med.userEnter(me);
 		
 		IUser dummyUser1 = ufact.produce();
 		IUser dummyUser2 = ufact.produce();
@@ -29,7 +33,7 @@ public class ClientServiceMock implements IClientService {
 		
 		med.userEnter(dummyUser1);
 		try {
-			Thread.sleep(3000);
+			Thread.sleep(4000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -44,6 +48,11 @@ public class ClientServiceMock implements IClientService {
 		med.userExit(dummyUser1);
 		
 		
+	}
+
+	@Override
+	public IUser getSelfUser() {
+		return me;
 	}
 
 }

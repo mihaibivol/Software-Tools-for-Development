@@ -46,4 +46,8 @@ public class UserFactory {
 		userno++;
 		return new UserMock("User" + userno);
 	}
+	
+	public IUser produce(String name) {
+		return new UserMock(name);
+	}
 }
