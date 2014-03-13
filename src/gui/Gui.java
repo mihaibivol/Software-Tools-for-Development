@@ -8,21 +8,16 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 
-import tests.factories.FileFactory;
-import tests.factories.UserFactory;
-
 import common.IFile;
 import common.IUser;
 
 import mediator.Mediator;
 
 import java.awt.*;
-import java.util.Vector;
 
 
 public class Gui extends JPanel implements IGui {
 	static final long serialVersionUID = 1L;
-	private Mediator med;
 	private FileList fileList;
 	private UserList userList;
 	private JTable transferList;
@@ -40,23 +35,7 @@ public class Gui extends JPanel implements IGui {
 	
 	public Gui(Mediator med) {
 		med.registerGui(this);
-		init();
-		
-		FileFactory ffact = new FileFactory();
-		UserFactory ufact = new UserFactory();
-		
-		IUser dummyUser1 = ufact.produce();
-		IUser dummyUser2 = ufact.produce();
-		
-		IFile dummyFile = ffact.produce();
-		
-		users.addElement(dummyUser1);
-		users.addElement(dummyUser2);
-		addDownload(dummyUser1, dummyUser2, dummyFile);
-		setDownloadProgress(dummyUser1, dummyUser2, dummyFile, 50);
-	}
 	
-	public void init() {
 		fileList	= new FileList(med, this);
 		userList	= new UserList(med, this);
 		transferList = new JTable(new DefaultTableModel(null, columnNames));
