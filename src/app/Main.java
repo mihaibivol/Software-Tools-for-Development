@@ -6,14 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import network.INetwork;
-
+import mediator.Mediator;
 import tests.mocks.ClientServiceMock;
 import tests.mocks.NetworkMock;
-
-import clientservice.IClientService;
-
-import mediator.Mediator;
 
 public class Main {
 	static Mediator med = new Mediator();
@@ -31,13 +26,13 @@ public class Main {
 	public static void main(String[] args) {
 		// run on EDT (event-dispatching thread), not on main thread!
 		final SwingWorker<?, ?> client = new ClientServiceMock(med);
-		final INetwork network = new NetworkMock(med);
+		final SwingWorker<?, ?> network = new NetworkMock(med);
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				buildGUI();
 				client.execute();
-				new Thread(network).start();
+				network.execute();
 			}
 		});
 	}
