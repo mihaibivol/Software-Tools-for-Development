@@ -94,12 +94,15 @@ public class Gui extends JPanel implements IGui {
 		
 		users.addElement(dummyUser1);
 		users.addElement(dummyUser2);
+		addDownload(dummyUser1, dummyUser2, dummyFile2);
 	}
 	
 	public void init() {
 		fileList	= new FileList(med, this);
 		userList	= new UserList(med, this);
 		transferList = new JTable(new DefaultTableModel(null, columnNames));
+		
+		transferList.getColumnModel().getColumn(3).setCellRenderer(new ProgressCellRenderer());
 		
 		files = (DefaultListModel<IFile>) fileList.getModel();
 		users = (DefaultListModel<IUser>) userList.getModel();
@@ -170,15 +173,21 @@ public class Gui extends JPanel implements IGui {
 
 	@Override
 	public void addDownload(IUser src, IUser dest, IFile file) {
-		// TODO Auto-generated method stub
-		
+		transfers.addRow(new Object[]
+				{
+				src,
+				dest,
+				file,
+				"3%",
+				"Started"
+				});
 	}
 
 	@Override
 	public void setDownloadProgress(IUser src, IUser dest, IFile file,
 			int progress) {
+		String prog = String.format("%s%%", progress);
 		// TODO Auto-generated method stub
-		
 	}
 	
 	
