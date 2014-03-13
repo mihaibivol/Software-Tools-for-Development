@@ -74,7 +74,9 @@ public class Gui extends JPanel implements IGui {
 		
 		this.setLayout(new BorderLayout());
 		this.add(mainPanel, BorderLayout.CENTER);
-		this.add(new JScrollPane(userList), BorderLayout.EAST);
+		JScrollPane userListScrollPane = new JScrollPane(userList);
+		userListScrollPane.setPreferredSize(new Dimension(200, 200));
+		this.add(userListScrollPane, BorderLayout.EAST);
 	}
 
 	@Override
