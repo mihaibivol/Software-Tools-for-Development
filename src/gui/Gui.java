@@ -55,19 +55,21 @@ public class Gui extends JPanel implements IGui {
 		constraints.fill   = GridBagConstraints.BOTH;
 		constraints.weightx = 500;
 		constraints.weighty = 400;
+		constraints.ipady = 200;
 		gbl.setConstraints(mainPanel, constraints);
 		mainPanel.setLayout(gbl);
 		
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
+		constraints.gridheight = 1;
 		mainPanel.add(new JScrollPane(fileList), constraints);
 		
 		constraints.fill = GridBagConstraints.BOTH;
 	    constraints.gridx = 0;
 	    constraints.gridy = 1;
 	    constraints.weighty = 200;
-	    //constraints.ipady = 300;
+	    constraints.ipady = 0;
 		mainPanel.add(new JScrollPane(transferList), constraints);
 		
 		this.setLayout(new BorderLayout());
