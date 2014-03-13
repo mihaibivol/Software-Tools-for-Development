@@ -1,5 +1,7 @@
 package clientservice;
 
-public interface IClientService {
+import common.IUser;
 
+public interface IClientService extends Runnable {
+	public IUser getSelfUser();
 }

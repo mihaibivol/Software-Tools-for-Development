@@ -12,37 +12,44 @@ public class Mediator {
 	INetwork network;
 	IClientService clientService;
 	
-	void registerGui(IGui gui) {
+	public void registerGui(IGui gui) {
 		this.gui = gui;
 	}
 	
-	void registerNetwork(INetwork network) {
+	public void registerNetwork(INetwork network) {
 		this.network = network;
 	}
 	
-	void registerClientService(IClientService clientService) {
+	public void registerClientService(IClientService clientService) {
 		this.clientService = clientService;
 	}
 	
-	/* Gui specific actions */
-	void userEnter(IUser user) {
+	/* Gui from ClinetService specific actions */
+	public void userEnter(IUser user) {
 		gui.userEnter(user);
 	}
 	
-	void userExit(IUser user) {
+	public void userExit(IUser user) {
 		gui.userExit(user);
+		//TODO remove user downloads from gui
 	}
 	
-	void addDownload(IUser src, IUser dest, IFile file) {
+	/* Gui from Network specific actions */
+	public void addDownload(IUser src, IUser dest, IFile file) {
 		gui.addDownload(src, dest, file);
 	}
 	
-	void setDownloadProgress(IUser src, IUser dest, IFile file, int progress) {
+	public void setDownloadProgress(IUser src, IUser dest, IFile file, int progress) {
 		gui.setDownloadProgress(src, dest, file, progress);
 	}
 	
-	/* Network specific actions */
-	void downloadFile(IFile file, IUser owner) {
+	/* Network from gui specific actions */
+	public void downloadFile(IFile file, IUser owner) {
 		network.downloadFile(file, owner);
+	}
+	
+	/* ClientService specific actions */
+	public IUser getSelfUser() {
+		return clientService.getSelfUser();
 	}
 }
