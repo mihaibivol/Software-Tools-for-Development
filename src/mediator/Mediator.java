@@ -16,7 +16,7 @@ public class Mediator {
 		this.gui = gui;
 	}
 	
-	void registerNetwork(INetwork network) {
+	public void registerNetwork(INetwork network) {
 		this.network = network;
 	}
 	
@@ -31,19 +31,20 @@ public class Mediator {
 	
 	public void userExit(IUser user) {
 		gui.userExit(user);
+		//TODO remove user downloads from gui
 	}
 	
 	/* Gui from Network specific actions */
-	void addDownload(IUser src, IUser dest, IFile file) {
+	public void addDownload(IUser src, IUser dest, IFile file) {
 		gui.addDownload(src, dest, file);
 	}
 	
-	void setDownloadProgress(IUser src, IUser dest, IFile file, int progress) {
+	public void setDownloadProgress(IUser src, IUser dest, IFile file, int progress) {
 		gui.setDownloadProgress(src, dest, file, progress);
 	}
 	
 	/* Network from gui specific actions */
-	void downloadFile(IFile file, IUser owner) {
+	public void downloadFile(IFile file, IUser owner) {
 		network.downloadFile(file, owner);
 	}
 	

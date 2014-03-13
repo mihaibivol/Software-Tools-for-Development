@@ -5,7 +5,10 @@ import gui.Gui;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import network.INetwork;
+
 import tests.mocks.ClientServiceMock;
+import tests.mocks.NetworkMock;
 
 import clientservice.IClientService;
 
@@ -28,6 +31,9 @@ public class Main {
 		// run on EDT (event-dispatching thread), not on main thread!
 		IClientService client = new ClientServiceMock(med);
 		new Thread(client).start();
+		
+		INetwork network = new NetworkMock(med);
+		new Thread(network).start();
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				buildGUI();

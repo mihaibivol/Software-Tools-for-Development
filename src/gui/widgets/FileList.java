@@ -23,6 +23,6 @@ public class FileList extends JList<IFile> implements WidgetCommand {
 
 	@Override
 	public void execute() {
-		//TODO start transfer from mediator
+		med.downloadFile(gui.getSelectedFile(), gui.getSelectedUser());
 	}
 }
