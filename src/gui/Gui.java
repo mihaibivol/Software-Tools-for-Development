@@ -1,48 +1,109 @@
 package gui;
 
+import gui.widgets.FileList;
+import gui.widgets.UserList;
+import gui.widgets.WidgetCommand;
+
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.DefaultTableModel;
+
+import common.IFile;
+import common.IUser;
+
+import mediator.Mediator;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Gui extends JPanel {
+public class Gui extends JPanel implements IGui {
+	static final long serialVersionUID = 1L;
+	private Mediator med;
+	private FileList fileList;
+	private UserList userList;
+	private JTable transferList;
 	
-	private JList	files, users;
-	private JTable transfers;
-	final JProgressBar progressBar = new JProgressBar(0, 10);
+	private DefaultListModel<IUser> users;
+	private DefaultListModel<IFile> files;
+	private DefaultTableModel transfers;
 
-	String[] columnNames = {"First Name",
-            "Last Name",
-            "Sport",
-            "# of Years",
-            "Vegetarian"};
-	Object[][] data = {
-		    {"Kathy", "Smith",
-		     "Snowboarding", new Integer(5), new Boolean(false)},
-		    {"John", "Doe",
-		     "Rowing", new Integer(3), new Boolean(true)},
-		    {"Sue", "Black",
-		     "Knitting", new Integer(2), new Boolean(false)},
-		    {"Jane", "White",
-		     "Speed reading", new Integer(20), new Boolean(true)},
-		    {"Joe", "Brown",
-		     "Pool", new Integer(10), new Boolean(false)}
-		};
+	Object[] columnNames =
+		   {"Source",
+            "Destination",
+            "File",
+            "Progress",
+            "Status"};
+	
 	public Gui() {
 		init();
+		
+		IFile dummyFile1 = new IFile() {
+			
+			@Override
+			public String getName() {
+				return "File1";
+			}
+		};
+		
+		IFile dummyFile2 = new IFile() {
+			
+			@Override
+			public String getName() {
+				return "File2";
+			}
+		};
+		
+		final ArrayList<IFile> dummyFiles = new ArrayList<IFile>();
+		dummyFiles.add(dummyFile1);
+		dummyFiles.add(dummyFile2);
+		
+		IUser dummyUser1 = new IUser() {
+			
+			@Override
+			public String getName() {
+				return "Gigi";
+			}
+			
+			@Override
+			public List<IFile> getFiles() {
+				return dummyFiles;
+			}
+			
+			public String toString() {
+				return getName();
+			}
+		};
+		
+		IUser dummyUser2 = new IUser() {
+			
+			@Override
+			public String getName() {
+				return "Ionel";
+			}
+			
+			@Override
+			public List<IFile> getFiles() {
+				return dummyFiles;
+			}
+			
+			public String toString() {
+				return getName();
+			}
+		};
+		
+		users.addElement(dummyUser1);
+		users.addElement(dummyUser2);
 	}
 	
 	public void init() {
-
+		fileList	= new FileList(med, this);
+		userList	= new UserList(med, this);
+		transferList = new JTable(new DefaultTableModel(null, columnNames));
 		
-		// TODO 1: populate model
-		
-		// initialize lists, based on the same model
-		files	= new JList();
-		users	= new JList();
-		transfers = new JTable(data, columnNames);
-		
-		// TODO 6: redefine mirror so as to use a ReverseListModel instance on top of 'model'
+		files = (DefaultListModel<IFile>) fileList.getModel();
+		users = (DefaultListModel<IUser>) userList.getModel();
+		transfers = (DefaultTableModel) transferList.getModel();
 		
 		// main panel: top panel, bottom panel
 		JPanel mainPanel = new JPanel();
@@ -59,62 +120,27 @@ public class Gui extends JPanel {
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
-		mainPanel.add(new JScrollPane(files), constraints);
+		mainPanel.add(new JScrollPane(fileList), constraints);
 		
 		constraints.fill = GridBagConstraints.BOTH;
 	    constraints.gridx = 0;
 	    constraints.gridy = 1;
 	    constraints.weighty = 200;
 	    //constraints.ipady = 300;
-		mainPanel.add(new JScrollPane(transfers), constraints);
+		mainPanel.add(new JScrollPane(transferList), constraints);
 		
 		this.setLayout(new BorderLayout());
 		this.add(mainPanel, BorderLayout.CENTER);
-		this.add(progressBar, BorderLayout.SOUTH);
-		this.add(new JScrollPane(users), BorderLayout.EAST);
-		
-
-		
-		
-
-		/*
-		this.add(top, BorderLayout.CENTER);
-		this.add(bottom, BorderLayout.SOUTH);
-		
-		// top panel: the two lists (scrollable)
-		top.add(new JScrollPane(list));
-		top.add(new JScrollPane(mirror));
-		
-		// bottom panel: name field, add button, remove button
-		bottom.add(tName);
-		bottom.add(bAdd);
-		bottom.add(bRemove);
-		
-		bAdd.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO 2: call the method for obtaining the text field's content
-				String text = "";
-				
-				if (text.isEmpty()) {
-					JOptionPane.showMessageDialog(
-							null, "Name is empty!", "Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				// TODO 3: add new element to model
-			}
-		});
-		*/
-		// TODO 4: add listener for Remove button
+		this.add(new JScrollPane(userList), BorderLayout.EAST);
 	}
 	
 	public static void buildGUI() {
-		JFrame frame = new JFrame("Swing stuff"); // title
-		frame.setContentPane(new Gui()); // content: the JPanel above
-		frame.setSize(800, 600); // width / height
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // exit application when window is closed
-		frame.setVisible(true); // show it!
+		JFrame frame = new JFrame("Transfers");
+		frame.setContentPane(new Gui());
+		
+		frame.setSize(800, 600);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 	}
 
 
@@ -125,6 +151,44 @@ public class Gui extends JPanel {
 				buildGUI();
 			}
 		});
+	}
+
+	@Override
+	public void valueChanged(ListSelectionEvent e) {
+		((WidgetCommand)e.getSource()).execute();
+	}
+
+	@Override
+	public void userEnter(IUser user) {
+		users.addElement(user);
+	}
+
+	@Override
+	public void userExit(IUser user) {
+		users.removeElement(user);
+	}
+
+	@Override
+	public void addDownload(IUser src, IUser dest, IFile file) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDownloadProgress(IUser src, IUser dest, IFile file,
+			int progress) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+	public void showFiles() {
+		IUser user = userList.getSelectedValue();
+		
+		files.clear();
+		for (IFile f : user.getFiles())
+			files.addElement(f);
 	}
 
 }

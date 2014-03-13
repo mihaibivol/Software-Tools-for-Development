@@ -1,7 +1,8 @@
 package gui.widgets;
 
-import gui.IGui;
+import gui.Gui;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 import common.IUser;
@@ -12,10 +13,11 @@ public class UserList extends JList<IUser> implements WidgetCommand {
 
 	private static final long serialVersionUID = 1L;
 	
-	IGui gui;
+	Gui gui;
 	Mediator med;
 	
-	public UserList(Mediator med, IGui gui) {
+	public UserList(Mediator med, Gui gui) {
+		super(new DefaultListModel<IUser>());
 		this.med = med;
 		this.gui = gui;
 		addListSelectionListener(gui);
@@ -23,7 +25,7 @@ public class UserList extends JList<IUser> implements WidgetCommand {
 
 	@Override
 	public void execute() {
-		//TODO show user files from gui
+		gui.showFiles();
 	}
 
 }
