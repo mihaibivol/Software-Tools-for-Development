@@ -20,19 +20,20 @@ public class Mediator {
 		this.network = network;
 	}
 	
-	void registerClientService(IClientService clientService) {
+	public void registerClientService(IClientService clientService) {
 		this.clientService = clientService;
 	}
 	
-	/* Gui specific actions */
-	void userEnter(IUser user) {
+	/* Gui from ClinetService specific actions */
+	public void userEnter(IUser user) {
 		gui.userEnter(user);
 	}
 	
-	void userExit(IUser user) {
+	public void userExit(IUser user) {
 		gui.userExit(user);
 	}
 	
+	/* Gui from Network specific actions */
 	void addDownload(IUser src, IUser dest, IFile file) {
 		gui.addDownload(src, dest, file);
 	}
@@ -41,7 +42,7 @@ public class Mediator {
 		gui.setDownloadProgress(src, dest, file, progress);
 	}
 	
-	/* Network specific actions */
+	/* Network from gui specific actions */
 	void downloadFile(IFile file, IUser owner) {
 		network.downloadFile(file, owner);
 	}

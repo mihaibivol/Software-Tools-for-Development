@@ -5,6 +5,10 @@ import gui.Gui;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import tests.mocks.ClientServiceMock;
+
+import clientservice.IClientService;
+
 import mediator.Mediator;
 
 public class Main {
@@ -22,6 +26,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		// run on EDT (event-dispatching thread), not on main thread!
+		IClientService client = new ClientServiceMock(med);
+		new Thread(client).start();
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				buildGUI();

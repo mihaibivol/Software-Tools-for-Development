@@ -1,5 +1,5 @@
 package clientservice;
 
-public interface IClientService {
+public interface IClientService extends Runnable {
 
 }
