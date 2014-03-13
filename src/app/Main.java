@@ -4,6 +4,7 @@ import gui.Gui;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import network.INetwork;
 
@@ -29,13 +30,13 @@ public class Main {
 
 	public static void main(String[] args) {
 		// run on EDT (event-dispatching thread), not on main thread!
-		final IClientService client = new ClientServiceMock(med);
+		final SwingWorker<?, ?> client = new ClientServiceMock(med);
 		final INetwork network = new NetworkMock(med);
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				buildGUI();
-				new Thread(client).start();
+				client.execute();
 				new Thread(network).start();
 			}
 		});
