@@ -17,34 +17,30 @@ public class ClientServiceMock implements IClientService {
 
 	@Override
 	public void run() {
-		try {
-			Thread.sleep(200);
+		/*try {
+			Thread.sleep(600);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
-		}
+		}*/
 		UserFactory ufact = new UserFactory();
 		
 		me = ufact.produce("ME");
 		med.userEnter(me);
 		
 		IUser dummyUser1 = ufact.produce();
-		IUser dummyUser2 = ufact.produce();
-		IUser dummyUser3 = ufact.produce();
-		
 		med.userEnter(dummyUser1);
-		try {
-			Thread.sleep(4000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		for (int i = 0; i < 10; i++) {
+			med.userEnter(ufact.produce());
+			med.userEnter(ufact.produce());
+			try {
+				Thread.sleep(4000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		med.userEnter(dummyUser2);
-		med.userEnter(dummyUser3);
 		
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		
+	
 		med.userExit(dummyUser1);
 		
 		

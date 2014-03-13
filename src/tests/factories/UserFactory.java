@@ -11,17 +11,20 @@ public class UserFactory {
 	int userno = 0;
 	FileFactory f = new FileFactory();
 	
+	static Random random = new Random();
 	private class UserMock implements IUser {
 		String name;
 		ArrayList<IFile> files;
+		
 		
 		public UserMock(String name) {
 			this.name = name;
 			this.files = new ArrayList<IFile>();
 			
-			int n = new Random().nextInt() % 10;
+			int n = random.nextInt(20);
 			
-			for (int i = 0; i < n; i++) {
+			//n = 5;
+			for (int i = 0; i < n + 1; i++) {
 				files.add(f.produce());
 			}
 		}

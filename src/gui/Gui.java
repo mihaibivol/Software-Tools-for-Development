@@ -134,6 +134,8 @@ public class Gui extends JPanel implements IGui {
 		IUser user = userList.getSelectedValue();
 		
 		files.clear();
+		if (user == null)
+			return;
 		for (IFile f : user.getFiles())
 			files.addElement(f);
 	}

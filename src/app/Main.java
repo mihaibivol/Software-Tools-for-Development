@@ -29,14 +29,14 @@ public class Main {
 
 	public static void main(String[] args) {
 		// run on EDT (event-dispatching thread), not on main thread!
-		IClientService client = new ClientServiceMock(med);
-		new Thread(client).start();
+		final IClientService client = new ClientServiceMock(med);
+		final INetwork network = new NetworkMock(med);
 		
-		INetwork network = new NetworkMock(med);
-		new Thread(network).start();
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				buildGUI();
+				new Thread(client).start();
+				new Thread(network).start();
 			}
 		});
 	}
