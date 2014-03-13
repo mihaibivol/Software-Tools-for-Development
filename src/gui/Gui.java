@@ -1,11 +1,11 @@
-package gui.widgets;
+package gui;
 
 import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
 
-public class Main extends JPanel {
+public class Gui extends JPanel {
 	
 	private JList	files, users;
 	private JTable transfers;
@@ -28,7 +28,7 @@ public class Main extends JPanel {
 		    {"Joe", "Brown",
 		     "Pool", new Integer(10), new Boolean(false)}
 		};
-	public Main() {
+	public Gui() {
 		init();
 	}
 	
@@ -111,7 +111,7 @@ public class Main extends JPanel {
 	
 	public static void buildGUI() {
 		JFrame frame = new JFrame("Swing stuff"); // title
-		frame.setContentPane(new Main()); // content: the JPanel above
+		frame.setContentPane(new Gui()); // content: the JPanel above
 		frame.setSize(800, 600); // width / height
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // exit application when window is closed
 		frame.setVisible(true); // show it!
