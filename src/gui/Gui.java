@@ -37,7 +37,8 @@ public class Gui extends JPanel implements IGui {
             "Progress",
             "Status"};
 	
-	public Gui() {
+	public Gui(Mediator med) {
+		med.registerGui(this);
 		init();
 		
 		FileFactory ffact = new FileFactory();
@@ -91,25 +92,6 @@ public class Gui extends JPanel implements IGui {
 		this.setLayout(new BorderLayout());
 		this.add(mainPanel, BorderLayout.CENTER);
 		this.add(new JScrollPane(userList), BorderLayout.EAST);
-	}
-	
-	public static void buildGUI() {
-		JFrame frame = new JFrame("Transfers");
-		frame.setContentPane(new Gui());
-		
-		frame.setSize(800, 600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-	}
-
-
-	public static void main(String[] args) {
-		// run on EDT (event-dispatching thread), not on main thread!
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				buildGUI();
-			}
-		});
 	}
 
 	@Override

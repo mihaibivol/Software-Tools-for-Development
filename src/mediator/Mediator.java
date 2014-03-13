@@ -12,7 +12,7 @@ public class Mediator {
 	INetwork network;
 	IClientService clientService;
 	
-	void registerGui(IGui gui) {
+	public void registerGui(IGui gui) {
 		this.gui = gui;
 	}
 	
