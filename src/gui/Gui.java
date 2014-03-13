@@ -8,14 +8,16 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 
+import tests.factories.FileFactory;
+import tests.factories.UserFactory;
+
 import common.IFile;
 import common.IUser;
 
 import mediator.Mediator;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class Gui extends JPanel implements IGui {
 	static final long serialVersionUID = 1L;
@@ -38,63 +40,17 @@ public class Gui extends JPanel implements IGui {
 	public Gui() {
 		init();
 		
-		IFile dummyFile1 = new IFile() {
-			
-			@Override
-			public String getName() {
-				return "File1";
-			}
-		};
+		FileFactory ffact = new FileFactory();
+		UserFactory ufact = new UserFactory();
 		
-		IFile dummyFile2 = new IFile() {
-			
-			@Override
-			public String getName() {
-				return "File2";
-			}
-		};
+		IUser dummyUser1 = ufact.produce();
+		IUser dummyUser2 = ufact.produce();
 		
-		final ArrayList<IFile> dummyFiles = new ArrayList<IFile>();
-		dummyFiles.add(dummyFile1);
-		dummyFiles.add(dummyFile2);
-		
-		IUser dummyUser1 = new IUser() {
-			
-			@Override
-			public String getName() {
-				return "Gigi";
-			}
-			
-			@Override
-			public List<IFile> getFiles() {
-				return dummyFiles;
-			}
-			
-			public String toString() {
-				return getName();
-			}
-		};
-		
-		IUser dummyUser2 = new IUser() {
-			
-			@Override
-			public String getName() {
-				return "Ionel";
-			}
-			
-			@Override
-			public List<IFile> getFiles() {
-				return dummyFiles;
-			}
-			
-			public String toString() {
-				return getName();
-			}
-		};
+		IFile dummyFile = ffact.produce();
 		
 		users.addElement(dummyUser1);
 		users.addElement(dummyUser2);
-		addDownload(dummyUser1, dummyUser2, dummyFile2);
+		addDownload(dummyUser1, dummyUser2, dummyFile);
 	}
 	
 	public void init() {
@@ -186,11 +142,9 @@ public class Gui extends JPanel implements IGui {
 	@Override
 	public void setDownloadProgress(IUser src, IUser dest, IFile file,
 			int progress) {
-		String prog = String.format("%s%%", progress);
+		//String prog = String.format("%s%%", progress);
 		// TODO Auto-generated method stub
 	}
-	
-	
 	
 	public void showFiles() {
 		IUser user = userList.getSelectedValue();
@@ -199,5 +153,4 @@ public class Gui extends JPanel implements IGui {
 		for (IFile f : user.getFiles())
 			files.addElement(f);
 	}
-
 }
