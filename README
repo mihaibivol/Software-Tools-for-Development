@@ -1,0 +1,23 @@
+Tema 1 - IDP
+Cătălin Badea, 342C3
+Mihai Bivol, 342C3
+
+Comenzi ant:
+$ ant build
+$ ant run
+$ ant clean
+
+Arhiva conține sursele pentru un GUI Swing conform specficațiilor temei.
+Am urmărit design patternul sugerat, interfața este gestionată separat
+în clasa gui.Gui, iar widget-urile se pot găsi în pachetul gui.widgets.
+Comunicarea cu celelalte componente se face printr-un mediator, iar
+componentele de rețea și de client service sunt implementate doar ca mock-uri
+pentru testare.
+Componenta pentru network se află în tests.mocks.NetworkMock, iar cea de client
+service în tests.mocks.ClientServiceMock.
+
+Mod de funcționare:
+La câteva secunde după pornirea aplicației, ClientService va începe să semnaleze
+utilizatori noi, fiecare având fișiere partajate fictive. Utilizatorul poate
+alege să descarce aceste fișiere. Pentru fiecare download existent componenta
+de network semnalează progres o dată pe secunde.
