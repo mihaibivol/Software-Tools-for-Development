@@ -1,12 +1,16 @@
 package app;
 
+import java.io.IOException;
+
 import gui.Gui;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import network.Network;
 import mediator.Mediator;
+import tests.mocks.ClientServiceLocalFilesMock;
 import tests.mocks.ClientServiceMock;
 import tests.mocks.NetworkMock;
 
@@ -23,14 +27,20 @@ public class Main {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// run on EDT (event-dispatching thread), not on main thread!
-		final SwingWorker<?, ?> client = new ClientServiceMock(med);
-		final SwingWorker<?, ?> network = new NetworkMock(med);
+		final SwingWorker<?, ?> client = new ClientServiceLocalFilesMock(med, args[0]);
+		final SwingWorker<?, ?> network = new Network(med);
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				buildGUI();
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				client.execute();
 				network.execute();
 			}

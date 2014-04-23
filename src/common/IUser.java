@@ -6,4 +6,5 @@ public interface IUser {
 	public String getName();
 	
 	public List<IFile> getFiles();
+	public String toString();
 }

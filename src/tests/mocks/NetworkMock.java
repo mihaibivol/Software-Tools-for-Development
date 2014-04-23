@@ -11,6 +11,7 @@ import common.IFile;
 import common.IUser;
 import mediator.Mediator;
 import network.INetwork;
+import network.NetworkUser;
 
 class Transfer extends SwingWorker<Integer, Integer>{
 	IUser src;

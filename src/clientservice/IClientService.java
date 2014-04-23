@@ -1,7 +1,7 @@
 package clientservice;
 
-import common.IUser;
+import common.LocalUser;
 
 public interface IClientService {
-	public IUser getSelfUser();
+	public LocalUser getSelfUser();
 }

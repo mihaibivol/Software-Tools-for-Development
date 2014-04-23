@@ -2,9 +2,10 @@ package mediator;
 
 import common.IFile;
 import common.IUser;
-
+import common.LocalUser;
 import clientservice.IClientService;
 import network.INetwork;
+import network.NetworkUser;
 import gui.IGui;
 
 public class Mediator {
@@ -49,7 +50,7 @@ public class Mediator {
 	}
 	
 	/* ClientService specific actions */
-	public IUser getSelfUser() {
+	public LocalUser getSelfUser() {
 		return clientService.getSelfUser();
 	}
 }

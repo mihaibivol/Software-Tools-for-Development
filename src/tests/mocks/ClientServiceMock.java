@@ -7,12 +7,12 @@ import javax.swing.SwingWorker;
 import mediator.Mediator;
 import tests.factories.UserFactory;
 import clientservice.IClientService;
-
 import common.IUser;
+import common.LocalUser;
 
 public class ClientServiceMock extends SwingWorker<IUser, IUser> implements IClientService {
 	private Mediator med;
-	private IUser me;
+	private LocalUser me;
 	
 	private IUser toRemove;
 	
@@ -22,7 +22,7 @@ public class ClientServiceMock extends SwingWorker<IUser, IUser> implements ICli
 	}
 	
 	@Override
-	public IUser getSelfUser() {
+	public LocalUser getSelfUser() {
 		return me;
 	}
 
@@ -30,7 +30,7 @@ public class ClientServiceMock extends SwingWorker<IUser, IUser> implements ICli
 	protected IUser doInBackground() throws Exception {
 		UserFactory ufact = new UserFactory();
 		
-		me = ufact.produce("ME");
+		me = new LocalUser("ME", "", 0xdeadbabe);
 		publish(me);
 		
 		IUser dummyUser1 = ufact.produce();

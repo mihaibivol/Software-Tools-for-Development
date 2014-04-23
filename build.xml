@@ -54,8 +54,17 @@
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
-    <target name="run">
+    <target name="run-1">
         <java classname="app.Main" failonerror="true" fork="yes">
+            <arg value="andrew"/>
+            <arg value="3001"/>
+            <classpath refid="FileTransfer.classpath"/>
+        </java>
+    </target>
+    <target name="run-2">
+        <java classname="app.Main" failonerror="true" fork="yes">
+            <arg value="florin"/>
+            <arg value="3002"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
