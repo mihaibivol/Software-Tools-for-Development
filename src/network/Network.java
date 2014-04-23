@@ -102,7 +102,6 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 	private class Transfer {
 		Logger logger = Logger.getLogger(Transfer.class);
 		State state;
-		Type type;
 		
 		FileInputStream src;
 		FileOutputStream dst;
@@ -121,11 +120,10 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 		}
 		
 		public Transfer(Type type, String file) throws FileNotFoundException {
-			this.type = type;
-			if (type == type.upload) {
-				state = state.acceptRequest;
+			if (type == Type.upload) {
+				state = State.acceptRequest;
 			} else {
-				state = state.sendRequest;
+				state = State.sendRequest;
 				dst = new FileOutputStream(med.getSelfUser().getDownloadLocation() + file);
 				filename = file;
 			}
@@ -146,10 +144,10 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			case sendRequestRemaining:
 				channel.write(buffer);
 				if (buffer.hasRemaining()) {
-					state = state.sendRequestRemaining;
+					state = State.sendRequestRemaining;
 					break;
 				}
-				state = state.waitFileSize;
+				state = State.waitFileSize;
 				channel.register(selector, SelectionKey.OP_READ, this);
 				logger.info("Switched to waitFileSize");
 				break;
@@ -159,7 +157,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				remaining -= read;
 				buffer.flip();
 				channel.write(buffer);
-				state = state.uploading;
+				state = State.uploading;
 				break;
 			case uploading:
 				if (buffer.hasRemaining()) {
@@ -195,7 +193,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			case acceptRequestRemaining:
 				channel.read(buffer);
 				if (buffer.hasRemaining()) {
-					state = state.acceptRequestRemaining;
+					state = State.acceptRequestRemaining;
 					break;
 				}
 				// java strings are not null terminated.
@@ -217,7 +215,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				buffer.putLong(f.length());
 				fileSize = f.length();
 				remaining = fileSize;
-				state = state.uploadBegin;
+				state = State.uploadBegin;
 				channel.register(selector, SelectionKey.OP_WRITE, this);
 				break;
 			case waitFileSize:
@@ -227,7 +225,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				buffer.flip();
 				remaining = buffer.getLong();
 				fileSize = remaining;
-				state = state.downloading;
+				state = State.downloading;
 				while (buffer.hasRemaining()) {
 					int written = dst.getChannel().write(buffer);
 					remaining -= written;

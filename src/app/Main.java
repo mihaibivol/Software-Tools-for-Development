@@ -11,8 +11,6 @@ import javax.swing.SwingWorker;
 import network.Network;
 import mediator.Mediator;
 import tests.mocks.ClientServiceLocalFilesMock;
-import tests.mocks.ClientServiceMock;
-import tests.mocks.NetworkMock;
 
 public class Main {
 	static Mediator med = new Mediator();

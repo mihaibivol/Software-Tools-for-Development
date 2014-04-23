@@ -5,7 +5,6 @@ import common.IUser;
 import common.LocalUser;
 import clientservice.IClientService;
 import network.INetwork;
-import network.NetworkUser;
 import gui.IGui;
 
 public class Mediator {
