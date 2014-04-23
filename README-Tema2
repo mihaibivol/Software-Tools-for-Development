@@ -1,0 +1,32 @@
+Tema 2 - IDP
+Cătălin Badea, 342C3
+Mihai Bivol, 342C3
+
+Comenzi ant:
+$ ant build
+$ ant run-1 #pornește utilizatorul andrew
+$ ant run-2 #pornește utilaztorul florin
+$ ant run-3 #pornește utilzatorul ionut
+$ ant clean
+
+Mod de functionare:
+aplicatia primeste ca paremtru de intrare numele utilzatorului:
+andrew, florin sau ionut. Exista 3 target-uri de ant ce pornesc acesti
+utilizatori. Fiecare dintre utilizatori are un director 'home' aflat
+în root/. Astfel, andrew are home-ul în root/andrew. Toate fișierele
+din home-ul unui utilizator vor putea fi descărcate de către ceilalți
+utilzatori. Lista de fișiere este populată o singură dată la pornirea
+aplicației în ClientServiceLocalFilesMock.
+
+Componenta de network rulează pe un singur thread și folosește java.nio.
+Protocolul de transfer este următorul:
+download:
+1. trimite un chunk ce conține numele fișierului și numele utilizatorului
+2. primește 8 bytes reprezentând dimensiunea fișierului
+3. primește fișierul
+upload:
+1. așteaptă deschiderea unei noi conexiuni
+2. primește un chunk cu numele fișierului și numele utilizatorului în formatul:
+"file:user"
+3. trimite 8 bytes cu dimensiunea fișierului
+4. trimite fișierul

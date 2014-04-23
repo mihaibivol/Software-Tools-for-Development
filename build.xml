@@ -68,4 +68,11 @@
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
+    <target name="run-3">
+        <java classname="app.Main" failonerror="true" fork="yes">
+            <arg value="ionut"/>
+            <arg value="3003"/>
+            <classpath refid="FileTransfer.classpath"/>
+        </java>
+    </target>
 </project>
