@@ -127,7 +127,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				dst = new FileOutputStream(med.getSelfUser().getDownloadLocation() + file);
 				filename = file;
 			}
-			buffer = ByteBuffer.allocate(4096);
+			buffer = ByteBuffer.allocate(CHUNK_SIZE);
 		}
 		
 		public void doWrite(SelectionKey key) throws Exception {
