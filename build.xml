@@ -61,6 +61,7 @@
         <java classname="app.Main" failonerror="true" fork="yes">
             <arg value="andrew"/>
             <arg value="3001"/>
+            <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
@@ -68,6 +69,7 @@
         <java classname="app.Main" failonerror="true" fork="yes">
             <arg value="florin"/>
             <arg value="3002"/>
+            <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
@@ -75,6 +77,7 @@
         <java classname="app.Main" failonerror="true" fork="yes">
             <arg value="ionut"/>
             <arg value="3003"/>
+            <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
