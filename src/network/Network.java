@@ -301,8 +301,13 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				    } else if (key.isConnectable()) {
 				    	Transfer t = (Transfer)key.attachment();
 				    	SocketChannel channel = (SocketChannel) key.channel();
-				    	channel.finishConnect();
-				    	channel.register(selector, SelectionKey.OP_WRITE, t);
+				    	try {
+				    		channel.finishConnect();
+				    		channel.register(selector, SelectionKey.OP_WRITE, t);
+				    	} catch (Exception e) {
+				    		System.out.println("Unable to connect.");
+				    		key.cancel();
+				    	}
 				    } else if (key.isReadable()) {
 				      Transfer t = (Transfer)key.attachment();
 				      t.doRead(key);
