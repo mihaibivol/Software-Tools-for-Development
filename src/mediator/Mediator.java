@@ -41,6 +41,7 @@ public class Mediator {
 	}
 	
 	public void setDownloadProgress(IUser src, IUser dest, IFile file, int progress) {
+		System.out.println("Set progress: " + progress);
 		gui.setDownloadProgress(src, dest, file, progress);
 	}
 	

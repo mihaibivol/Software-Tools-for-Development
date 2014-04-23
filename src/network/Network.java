@@ -25,6 +25,7 @@ import sun.net.ftp.FtpClient.TransferType;
 import mediator.Mediator;
 import common.IFile;
 import common.IUser;
+import common.SimpleFile;
 
 enum State {
 	sendRequest,
@@ -54,6 +55,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 	@Override
 	public void downloadFile(IFile file, IUser user) {
 		// TODO Auto-generated method stub
+
 		NetworkUser owner = (NetworkUser) user;
 		// prevent duplicates
 		String request = file.getName() + "@" + user.getName();
@@ -61,8 +63,14 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			return;
 		requests.add(request);
 		System.out.println("Target is: " + owner.getAddress());
+
+
 		try {
 			Transfer t = new Transfer(Type.download, file.getName());
+			med.addDownload(user, med.getSelfUser(), file);
+			t.setOtherUser(user);
+			t.setFile(file);
+
 			SocketChannel socket = SocketChannel.open();
 			socket.configureBlocking(false);
 			boolean connected = socket.connect(owner.getAddress());
@@ -99,6 +107,16 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 		ByteBuffer buffer;
 		String filename;
 		long remaining = 0;
+		long fileSize = 0;
+		IUser otherUser;
+		IFile transferredFile;
+		
+		void setOtherUser(IUser usr) {
+			otherUser = usr;
+		}
+		void setFile(IFile file) {
+			transferredFile = file;
+		}
 		
 		public Transfer(Type type, String file) throws FileNotFoundException {
 			this.type = type;
@@ -119,6 +137,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			case sendRequest:
 				buffer.clear();
 				buffer.put(filename.getBytes());
+				buffer.put((":" + med.getSelfUser().getName()).getBytes());
 				while (buffer.hasRemaining())
 					buffer.put((byte) 0); // TODO
 				buffer.flip();				
@@ -134,7 +153,8 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				break;
 			case uploadBegin:
 				// file size is already in the buffer.
-				src.getChannel().read(buffer);
+				int read = src.getChannel().read(buffer);
+				remaining -= read;
 				buffer.flip();
 				channel.write(buffer);
 				state = state.uploading;
@@ -144,15 +164,19 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 					channel.write(buffer);
 				} else {
 					buffer.clear();
-					int read = src.getChannel().read(buffer);
+					read = src.getChannel().read(buffer);
 					buffer.flip();
 					if (read == -1) {
 						key.cancel();
 						channel.close();
 						src.close();
 						System.out.println("upload done.");
+						med.setDownloadProgress(med.getSelfUser(), otherUser, transferredFile, 100);
 						break;
 					}
+					remaining -= read;
+					float progress = (fileSize - remaining) / (float)fileSize * 100;
+					med.setDownloadProgress(med.getSelfUser(), otherUser, transferredFile, (int) progress);
 					channel.write(buffer);
 				}
 				break;
@@ -172,16 +196,25 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 					state = state.acceptRequestRemaining;
 					break;
 				}
-				// java strings are not null terminated. :|
+				// java strings are not null terminated.
 				int endPos;
 				for (endPos = 0; endPos < buffer.array().length; endPos++)
 					if (buffer.array()[endPos] == 0)
 						break;
-				String requestFilename = new String(buffer.array(), 0, endPos);
-				File f = new File(med.getSelfUser().getHome() + requestFilename);
+				String request = new String(buffer.array(), 0, endPos);
+				String requestPart[] = request.split(":");
+				File f = new File(med.getSelfUser().getHome() + requestPart[0]);
+				
+				// create an upload transfer user
+				otherUser = new NetworkUser(requestPart[1], null, 0xdeadbeef);
+				transferredFile = new SimpleFile(requestPart[0]);
+				med.addDownload(med.getSelfUser(), otherUser, transferredFile);
+				
 				src = new FileInputStream(f);
 				buffer.clear();
 				buffer.putLong(f.length());
+				fileSize = f.length();
+				remaining = fileSize;
 				state = state.uploadBegin;
 				channel.register(selector, SelectionKey.OP_WRITE, this);
 				break;
@@ -191,10 +224,13 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				channel.read(buffer);
 				buffer.flip();
 				remaining = buffer.getLong();
+				fileSize = remaining;
 				state = state.downloading;
 				while (buffer.hasRemaining()) {
 					int written = dst.getChannel().write(buffer);
 					remaining -= written;
+					float progress = (fileSize - remaining) / (float)fileSize * 100;
+					med.setDownloadProgress(otherUser, med.getSelfUser(), transferredFile, (int) progress);
 				}
 				break;
 			case downloading:
@@ -205,13 +241,19 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 					key.cancel();
 					channel.close();
 					dst.close();
+					med.setDownloadProgress(otherUser, med.getSelfUser(), transferredFile, 100);
+					break;
 				}
+
+
 					
 				buffer.flip();
 				while(buffer.hasRemaining()) {
 					int written = dst.getChannel().write(buffer);
 					remaining -= written;
 					System.out.println("Remaining: "+ remaining);
+					float progress = (fileSize - remaining) / (float)fileSize * 100;
+					med.setDownloadProgress(otherUser, med.getSelfUser(), transferredFile, (int) progress);
 				}
 				if (remaining == 0) {
 					System.out.println("Download completed.");
