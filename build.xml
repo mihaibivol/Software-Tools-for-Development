@@ -76,4 +76,15 @@
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
+    <target name="hw2">
+        <exec executable="ant" spawn="true">
+            <arg line="run-1" />
+        </exec>
+        <exec executable="ant" spawn="true">
+            <arg line="run-2" />
+        </exec>
+        <exec executable="ant" spawn="true">
+            <arg line="run-3" />
+        </exec>
+    </target>
 </project>
