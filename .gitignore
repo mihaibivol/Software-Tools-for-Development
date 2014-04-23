@@ -2,7 +2,6 @@
 
 # Package Files #
 .DS_STORE
-*.jar
 *.war
 *.ear
 /bin
