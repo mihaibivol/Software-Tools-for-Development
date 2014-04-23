@@ -11,7 +11,9 @@
     <property name="source" value="1.7"/>
     <path id="FileTransfer.classpath">
         <pathelement location="bin"/>
-        <pathelement location="lib/log4j-1.2.17.jar"/>
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+        </fileset>
     </path>
     <target name="init">
         <mkdir dir="bin"/>

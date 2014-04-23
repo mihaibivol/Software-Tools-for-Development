@@ -12,7 +12,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -21,11 +20,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.SwingWorker;
 
-import sun.net.ftp.FtpClient.TransferType;
 import mediator.Mediator;
 import common.IFile;
 import common.IUser;
 import common.SimpleFile;
+
+import org.apache.log4j.*;
 
 enum State {
 	sendRequest,
@@ -44,6 +44,7 @@ enum Type {
 }
 
 public class Network extends SwingWorker<Object, Object> implements INetwork {
+	static Logger logger = Logger.getLogger(Network.class);
 	private Selector selector;
 	private ServerSocketChannel serverSocketChannel;
 	public static int CHUNK_SIZE = 8192;
@@ -62,7 +63,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 		if (requests.contains(request))
 			return;
 		requests.add(request);
-		System.out.println("Target is: " + owner.getAddress());
+		logger.info("Target is: " + owner.getAddress());
 
 
 		try {
@@ -74,7 +75,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			SocketChannel socket = SocketChannel.open();
 			socket.configureBlocking(false);
 			boolean connected = socket.connect(owner.getAddress());
-			System.out.println("register.");
+			logger.info("register.");
 			if (!connected) {
 				registerQueue.add(new RegisterEntry(socket, SelectionKey.OP_CONNECT, t));
 			} else {
@@ -82,7 +83,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			}
 			selector.wakeup();
 		} catch (Exception e) {
-			System.out.println("error");
+			logger.info("error");
 			e.printStackTrace();
 		}
 	}
@@ -99,6 +100,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 	};
 	
 	private class Transfer {
+		Logger logger = Logger.getLogger(Transfer.class);
 		State state;
 		Type type;
 		
@@ -131,7 +133,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 		}
 		
 		public void doWrite(SelectionKey key) throws Exception {
-			System.out.println("Do write.");
+			logger.info("Do write.");
 			SocketChannel channel = (SocketChannel) key.channel();
 			switch (state) {
 			case sendRequest:
@@ -149,7 +151,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				}
 				state = state.waitFileSize;
 				channel.register(selector, SelectionKey.OP_READ, this);
-				System.out.println("Switched to waitFileSize");
+				logger.info("Switched to waitFileSize");
 				break;
 			case uploadBegin:
 				// file size is already in the buffer.
@@ -170,7 +172,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 						key.cancel();
 						channel.close();
 						src.close();
-						System.out.println("upload done.");
+						logger.info("upload done.");
 						med.setDownloadProgress(med.getSelfUser(), otherUser, transferredFile, 100);
 						break;
 					}
@@ -185,7 +187,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			}
 		}
 		public void doRead(SelectionKey key) throws Exception {
-			System.out.println("Do read.");
+			logger.info("Do read.");
 			SocketChannel channel = (SocketChannel) key.channel();
 			switch (state) {
 			case acceptRequest:
@@ -219,7 +221,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				channel.register(selector, SelectionKey.OP_WRITE, this);
 				break;
 			case waitFileSize:
-				System.out.println("Wait filesize");
+				logger.info("Wait filesize");
 				buffer.clear();
 				channel.read(buffer);
 				buffer.flip();
@@ -236,7 +238,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			case downloading:
 				buffer.clear();
 				int readSize = channel.read(buffer);
-				System.out.println("Read: " + readSize);
+				logger.info("Read: " + readSize);
 				if (readSize == -1) {
 					key.cancel();
 					channel.close();
@@ -251,12 +253,12 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				while(buffer.hasRemaining()) {
 					int written = dst.getChannel().write(buffer);
 					remaining -= written;
-					System.out.println("Remaining: "+ remaining);
+					logger.info("Remaining: "+ remaining);
 					float progress = (fileSize - remaining) / (float)fileSize * 100;
 					med.setDownloadProgress(otherUser, med.getSelfUser(), transferredFile, (int) progress);
 				}
 				if (remaining == 0) {
-					System.out.println("Download completed.");
+					logger.info("Download completed.");
 					key.cancel();
 					channel.close();
 					dst.close();
@@ -281,13 +283,13 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 			serverSocketChannel.configureBlocking(false);
 			serverSocketChannel.socket().bind(new InetSocketAddress(med.getSelfUser().getPort()));
 			running = true;
-			System.out.println("Listening on: " + med.getSelfUser().getPort());
+			logger.info("Listening on: " + med.getSelfUser().getPort());
 			serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 		
 			while (running) {
-				System.out.println("Registerqueue emtpy:" + registerQueue.isEmpty());
+				logger.info("Registerqueue emtpy:" + registerQueue.isEmpty());
 				while (!registerQueue.isEmpty()) {
-					System.out.println("registering");
+					logger.info("registering");
 					RegisterEntry entry = registerQueue.poll();
 					entry.channel.register(selector, entry.op, entry.attachment);
 				}
@@ -305,7 +307,7 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 				    		channel.finishConnect();
 				    		channel.register(selector, SelectionKey.OP_WRITE, t);
 				    	} catch (Exception e) {
-				    		System.out.println("Unable to connect.");
+				    		logger.info("Unable to connect.");
 				    		key.cancel();
 				    	}
 				    } else if (key.isReadable()) {
@@ -340,10 +342,10 @@ public class Network extends SwingWorker<Object, Object> implements INetwork {
 	}
 
 	public void accept(SelectionKey key) throws IOException {
-		System.out.println("accepting.");
+		logger.info("accepting.");
 		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
 		SocketChannel channel = serverSocketChannel.accept();
-		System.out.println("Finished accepting.");
+		logger.info("Finished accepting.");
 		channel.configureBlocking(false);
 		channel.register(key.selector(), SelectionKey.OP_READ, new Transfer(Type.upload, null));
 	}
