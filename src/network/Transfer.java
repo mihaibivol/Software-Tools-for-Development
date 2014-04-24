@@ -24,8 +24,8 @@ public class Transfer {
 	FileOutputStream dst;
 	ByteBuffer buffer;
 	String filename;
-	long remaining = 0;
-	long fileSize = 0;
+	protected long remaining = 0;
+	protected long fileSize = 0;
 	IUser otherUser;
 	IFile transferredFile;
 	Mediator med;
@@ -126,7 +126,7 @@ public class Transfer {
 			String request = new String(buffer.array(), 0, endPos);
 			String requestPart[] = request.split(":");
 			File f = new File(med.getSelfUser().getHome() + requestPart[0]);
-			
+			// file:user
 			// create an upload transfer user
 			otherUser = new NetworkUser(requestPart[1], null, 0xdeadbeef);
 			transferredFile = new SimpleFile(requestPart[0]);

@@ -2,12 +2,15 @@ package tests.network;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
+import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -23,6 +26,10 @@ import network.Type;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import common.IFile;
+import common.IUser;
+import common.LocalUser;
 
 /** Inject motherfucking dependencies **/
 class TestableTransfer extends Transfer {
@@ -40,6 +47,18 @@ class TestableTransfer extends Transfer {
 		return this.state;
 	}
 	
+	void setRemaining(long remaining) {
+		this.remaining = remaining;
+	}
+	
+	void setFileSize(long filesize) {
+		this.fileSize = filesize;
+	}
+	
+	long getRemaining() {
+		return remaining;
+	}
+	
 }
 
 /** Mock network default implementation **/
@@ -53,13 +72,33 @@ class NetowrkMock extends Network {
 
 /** Mock network mediator **/
 class MediatorMock extends Mediator {
+	LocalUser usr = new LocalUser("test", "root/test/", 0xb00b135);
+
+	@Override
+	public LocalUser getSelfUser() {
+		return usr;
+	}
 	
+	/* Gui from Network specific actions */
+	@Override
+	public void addDownload(IUser src, IUser dest, IFile file) {
+		// to nothing
+	}
+	@Override
+	public void setDownloadProgress(IUser src, IUser dest, IFile file, int progress) {
+		// to nothing
+	}
 }
 
 class ChannelMock extends SocketChannel {
+	public ByteBuffer readBuffer;
+	public ByteBuffer writeBuffer;
 	public ChannelMock() {
 		super(null);
+		readBuffer = ByteBuffer.allocate(Network.CHUNK_SIZE);
+		writeBuffer = ByteBuffer.allocate(Network.CHUNK_SIZE);	
 	}
+	
 	
 	@Override
 	public SocketAddress getLocalAddress() throws IOException {
@@ -117,8 +156,9 @@ class ChannelMock extends SocketChannel {
 
 	@Override
 	public int read(ByteBuffer dst) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		int initial = readBuffer.remaining();
+		dst.put(readBuffer);
+		return initial - readBuffer.remaining();
 	}
 
 	@Override
@@ -155,8 +195,9 @@ class ChannelMock extends SocketChannel {
 
 	@Override
 	public int write(ByteBuffer src) throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		int initial = writeBuffer.remaining();
+		writeBuffer.put(src);
+		return initial - writeBuffer.remaining();
 	}
 
 	@Override
@@ -183,9 +224,14 @@ class ChannelMock extends SocketChannel {
 /** Mock selection key to return a given channel **/
 class SelectionKeyMock extends SelectionKey {
 	private SelectableChannel channel;
+	boolean cancelled;
 
 	public SelectionKeyMock(SelectableChannel channel) {
 		this.channel = channel;
+	}
+	
+	public void reset() {
+		cancelled = false;
 	}
 	
 	@Override
@@ -195,7 +241,7 @@ class SelectionKeyMock extends SelectionKey {
 
 	@Override
 	public void cancel() {
-		
+		cancelled = true;
 	}
 
 	@Override
@@ -228,8 +274,8 @@ class SelectionKeyMock extends SelectionKey {
 public class TestTransferStates {
 	Network network;
 	Mediator mediator;
-	SocketChannel channel;
-	SelectionKey key;
+	ChannelMock channel;
+	SelectionKeyMock key;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -240,6 +286,27 @@ public class TestTransferStates {
 		network = new NetowrkMock(mediator);
 		channel = new ChannelMock();
 		key = new SelectionKeyMock(channel);
+		
+		File dir = new File("root/test");
+		if (!dir.exists())
+			dir.mkdir();
+	}
+	
+	public static boolean deleteDirectory(File directory) {
+	    if(directory.exists()){
+	        File[] files = directory.listFiles();
+	        if(null!=files){
+	            for(int i=0; i<files.length; i++) {
+	                if(files[i].isDirectory()) {
+	                    deleteDirectory(files[i]);
+	                }
+	                else {
+	                    files[i].delete();
+	                }
+	            }
+	        }
+	    }
+	    return(directory.delete());
 	}
 
 	/**
@@ -247,56 +314,142 @@ public class TestTransferStates {
 	 */
 	@After
 	public void tearDown() throws Exception {
+		File dir = new File("root/test");
+		deleteDirectory(dir);
 	}
 
 	@Test
-	public void testReadAcceptRequestCreatesFile() {
+	public void testAcceptRequestCreatesFile() {
+		TestableTransfer t = null;
 		try {
-			TestableTransfer t = new TestableTransfer(Type.upload, "testFile", network);
+			t = new TestableTransfer(Type.upload, "dummy", network);
 			t.setState(State.acceptRequest);
+			channel.readBuffer.clear();
+			channel.readBuffer.put("testfile:testuser".getBytes());
+			while(channel.readBuffer.hasRemaining())
+				channel.readBuffer.put((byte) 0);
+			channel.readBuffer.flip();
+			FileOutputStream testFile = new FileOutputStream("root/test/testfile");
+			testFile.write("The cake is a lie".getBytes());
+			testFile.close();
 			t.doRead(key);
-			
 		} catch (FileNotFoundException e) {
 			fail("File not found during stateTransfer initialization");
+		} catch (IllegalBlockingModeException e) {
+			assertTrue(t.getState() == State.uploadBegin);
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Bad state found in Transfer");
 		}
 	}
 	
 	@Test
-	public void testReadAcceptRequestRemaining() {
+	public void testAcceptRequestRemainingPartial() {
+		TestableTransfer t = null;
 		try {
-			Transfer t = new Transfer(Type.upload, "testFile", network);
+			t = new TestableTransfer(Type.upload, "dummy", network);
+			t.setState(State.acceptRequest);
+			channel.readBuffer.clear();
+			channel.readBuffer.put("testfile:testuser".getBytes());
+			while(channel.readBuffer.hasRemaining())
+				channel.readBuffer.put((byte) 0);
 			t.doRead(key);
+			
+			/* Buffer still has remaining, should wait for more */
+			assertTrue(t.getState() == State.acceptRequestRemaining);
 		} catch (FileNotFoundException e) {
-			fail("File not found during Transfer initialization");
+			fail("File not found during stateTransfer initialization");
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Bad state found in Transfer");
 		}
 	}
 	
 	@Test
 	public void testReadWaitFileSize() {
+		TestableTransfer t = null;
 		try {
-			Transfer t = new Transfer(Type.upload, "testFile", network);
+			t = new TestableTransfer(Type.download, "dummy", network);
+			t.setState(State.waitFileSize);
+			channel.readBuffer.clear();
+			channel.readBuffer.putLong(42);
+			channel.readBuffer.flip();
 			t.doRead(key);
+			/* Buffer still has remaining, should wait for more */
+			assertTrue(t.getState() == State.downloading);
 		} catch (FileNotFoundException e) {
-			fail("File not found during Transfer initialization");
+			fail("File not found during stateTransfer initialization");
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Bad state found in Transfer");
 		}
 	}
 	
 	@Test
-	public void testReadDownloading() {
+	public void testReadDownloadingComplete() {
+		TestableTransfer t = null;
 		try {
-			Transfer t = new Transfer(Type.upload, "testFile", network);
+			t = new TestableTransfer(Type.download, "dummy2", network);
+			t.setState(State.downloading);
+			byte[] content = "anaaremere".getBytes();
+			t.setFileSize(content.length);
+			t.setRemaining(content.length);
+			channel.readBuffer.clear();
+			channel.readBuffer.put(content);
+			channel.readBuffer.flip();
 			t.doRead(key);
+			/* Successful download */
+			assertTrue(t.getRemaining() == 0);
 		} catch (FileNotFoundException e) {
-			fail("File not found during Transfer initialization");
+			fail("File not found during stateTransfer initialization");
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Bad state found in Transfer");
 		}
 	}
 
+	@Test
+	public void testReadDownloadingClosesSelectionKey() {
+		TestableTransfer t = null;
+		try {
+			key.reset();
+			t = new TestableTransfer(Type.download, "dummy2", network);
+			t.setState(State.downloading);
+			byte[] content = "anaaremere".getBytes();
+			t.setFileSize(content.length);
+			t.setRemaining(content.length);
+			channel.readBuffer.clear();
+			channel.readBuffer.put(content);
+			channel.readBuffer.flip();
+			t.doRead(key);
+			/* Selection key cancelled */
+			assertTrue(key.cancelled);
+		} catch (FileNotFoundException e) {
+			fail("File not found during stateTransfer initialization");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Bad state found in Transfer");
+		}
+	}
+	
+	@Test
+	public void testWriteDownloadRequest() {
+		TestableTransfer t = null;
+		try {
+			t = new TestableTransfer(Type.download, "downloadFile", network);
+			t.setState(State.sendRequest);
+			channel.writeBuffer.clear();
+			t.doWrite(key);
+
+		} catch (FileNotFoundException e) {
+			fail("File not found during stateTransfer initialization");
+		} catch (IllegalBlockingModeException e) {
+			// Written according to protocol
+			channel.writeBuffer.flip();
+			assertTrue("downloadFile:test".equals(new String(channel.writeBuffer.array()).split("\0")[0]));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Bad state found in Transfer");
+		}
+	}
 }
