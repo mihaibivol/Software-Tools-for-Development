@@ -49,6 +49,7 @@ public class Transfer {
 			filename = file;
 		}
 		buffer = ByteBuffer.allocate(Network.CHUNK_SIZE);
+		buffer.flip();
 	}
 	
 	public void doWrite(SelectionKey key) throws Exception {

@@ -498,7 +498,7 @@ public class TestTransferStates {
 		TestableTransfer t = null;
 		try {
 			t = new TestableTransfer(Type.upload, "downloadFile", network);
-			t.setState(State.uploadBegin);
+			t.setState(State.uploading);
 			channel.writeBuffer.clear();
 			
 			File f = new File("root/test/downloadFile");
@@ -513,12 +513,12 @@ public class TestTransferStates {
 			t.doWrite(key);
 
 			channel.writeBuffer.flip();
-			long size = channel.writeBuffer.getLong();
-			assertTrue(size == content.length);
 			
 			byte[] result = new byte[content.length];
+			
 			channel.writeBuffer.get(result);
 			assertTrue(Arrays.equals(result, content));
+			
 		} catch (FileNotFoundException e) {
 			fail("File not found during stateTransfer initialization");
 		} catch (Exception e) {
