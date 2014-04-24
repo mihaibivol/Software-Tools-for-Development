@@ -3,6 +3,7 @@ package tests.network;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Set;
 
 import mediator.Mediator;
@@ -57,6 +59,10 @@ class TestableTransfer extends Transfer {
 	
 	long getRemaining() {
 		return remaining;
+	}
+	
+	void setSrc(FileInputStream f) {
+		this.src = f;
 	}
 	
 }
@@ -447,6 +453,74 @@ public class TestTransferStates {
 			// Written according to protocol
 			channel.writeBuffer.flip();
 			assertTrue("downloadFile:test".equals(new String(channel.writeBuffer.array()).split("\0")[0]));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Bad state found in Transfer");
+		}
+	}
+	
+	@Test
+	public void testWriteUploadBegin() {
+		TestableTransfer t = null;
+		try {
+			t = new TestableTransfer(Type.upload, "downloadFile", network);
+			t.setState(State.uploadBegin);
+			channel.writeBuffer.clear();
+			
+			File f = new File("root/test/downloadFile");
+			FileOutputStream fos = new FileOutputStream(f);
+			byte[] content = "anaaremultemere".getBytes();
+			fos.write(content);
+			fos.close();
+			FileInputStream fin = new FileInputStream(f);
+			t.setSrc(fin);
+			t.setFileSize(content.length);
+			t.setRemaining(content.length);
+			t.doWrite(key);
+
+			channel.writeBuffer.flip();
+			long size = channel.writeBuffer.getLong();
+			assertTrue(size == content.length);
+			
+			byte[] result = new byte[content.length];
+			channel.writeBuffer.get(result);
+			assertTrue(Arrays.equals(result, content));
+		} catch (FileNotFoundException e) {
+			fail("File not found during stateTransfer initialization");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Bad state found in Transfer");
+		}
+	}
+	
+	@Test
+	public void testWriteUploading() {
+		TestableTransfer t = null;
+		try {
+			t = new TestableTransfer(Type.upload, "downloadFile", network);
+			t.setState(State.uploadBegin);
+			channel.writeBuffer.clear();
+			
+			File f = new File("root/test/downloadFile");
+			FileOutputStream fos = new FileOutputStream(f);
+			byte[] content = "anaaremultemere".getBytes();
+			fos.write(content);
+			fos.close();
+			FileInputStream fin = new FileInputStream(f);
+			t.setSrc(fin);
+			t.setFileSize(content.length);
+			t.setRemaining(content.length);
+			t.doWrite(key);
+
+			channel.writeBuffer.flip();
+			long size = channel.writeBuffer.getLong();
+			assertTrue(size == content.length);
+			
+			byte[] result = new byte[content.length];
+			channel.writeBuffer.get(result);
+			assertTrue(Arrays.equals(result, content));
+		} catch (FileNotFoundException e) {
+			fail("File not found during stateTransfer initialization");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Bad state found in Transfer");

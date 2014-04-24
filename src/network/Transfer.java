@@ -20,7 +20,7 @@ public class Transfer {
 	Logger logger = Logger.getLogger(Transfer.class);
 	protected State state;
 	
-	FileInputStream src;
+	protected FileInputStream src;
 	FileOutputStream dst;
 	ByteBuffer buffer;
 	String filename;
@@ -74,6 +74,8 @@ public class Transfer {
 			break;
 		case uploadBegin:
 			// file size is already in the buffer.
+			buffer.clear();
+			buffer.putLong(fileSize);
 			int read = src.getChannel().read(buffer);
 			remaining -= read;
 			buffer.flip();
@@ -133,8 +135,6 @@ public class Transfer {
 			med.addDownload(med.getSelfUser(), otherUser, transferredFile);
 			
 			src = new FileInputStream(f);
-			buffer.clear();
-			buffer.putLong(f.length());
 			fileSize = f.length();
 			remaining = fileSize;
 			state = State.uploadBegin;
