@@ -18,7 +18,7 @@ import common.SimpleFile;
 
 public class Transfer {
 	Logger logger = Logger.getLogger(Transfer.class);
-	State state;
+	protected State state;
 	
 	FileInputStream src;
 	FileOutputStream dst;
@@ -166,9 +166,7 @@ public class Transfer {
 				med.setDownloadProgress(otherUser, med.getSelfUser(), transferredFile, 100);
 				break;
 			}
-
-
-				
+		
 			buffer.flip();
 			while(buffer.hasRemaining()) {
 				int written = dst.getChannel().write(buffer);
