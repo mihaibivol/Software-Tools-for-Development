@@ -7,6 +7,7 @@ $ ant build
 $ ant run-1 #pornește utilizatorul andrew
 $ ant run-2 #pornește utilaztorul florin
 $ ant run-3 #pornește utilzatorul ionut
+$ ant hw2 # pornește 3 instanțe
 $ ant clean
 
 Mod de functionare:
@@ -30,3 +31,15 @@ upload:
 "file:user"
 3. trimite 8 bytes cu dimensiunea fișierului
 4. trimite fișierul
+
+Pentru a testa transferul am făcut mock-uri pentru SocketChannel, Mediator,
+SelectionKey și Network.
+
+Am testat separat fiecare etapă a unui transfer.
+Se verifică efectele laterale ale citirii de pe socket în timpul fiecărei
+stări a unui transfer:
+-Setare corectă a stării următoare
+-Citiri și scrieri în conformitate cu protocolul folosit
+-Eliberare corectă resurse
+-Existență fișiere
+-Apelare metode mediator

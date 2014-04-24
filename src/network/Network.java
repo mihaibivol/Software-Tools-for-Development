@@ -21,22 +21,6 @@ import common.IUser;
 
 import org.apache.log4j.*;
 
-enum State {
-	sendRequest,
-	sendRequestRemaining,
-	waitFileSize,
-	acceptRequest,
-	acceptRequestRemaining,
-	downloading,
-	uploadBegin,
-	uploading
-};
-
-enum Type {
-	upload,
-	download
-}
-
 public class Network extends SwingWorker<Object, Object> implements INetwork {
 	static Logger logger = Logger.getLogger(Network.class);
 	Selector selector;

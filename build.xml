@@ -9,11 +9,16 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
+    <path id="JUnit 4.libraryclasspath">
+        <pathelement location="${ECLIPSE_HOME}/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
+        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
+        <pathelement location="/usr/share/eclipse/dropins/jdt/plugins/org.junit_4.8.2.dist/junit.jar"/>
+        <pathelement location="/usr/share/eclipse/dropins/jdt/plugins/org.hamcrest.core_1.1.0.jar"/>
+    </path>
     <path id="FileTransfer.classpath">
         <pathelement location="bin"/>
-        <fileset dir="lib">
-            <include name="**/*.jar"/>
-        </fileset>
+        <pathelement location="lib/log4j-1.2.17.jar"/>
+        <path refid="JUnit 4.libraryclasspath"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -52,36 +57,30 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="Main (3)">
-        <java classname="gui.widgets.Main" failonerror="true" fork="yes">
+    <target name="ClientServiceLocalFilesMock">
+        <java classname="tests.mocks.ClientServiceLocalFilesMock" failonerror="true" fork="yes">
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
     <target name="run-1">
         <java classname="app.Main" failonerror="true" fork="yes">
-            <arg value="andrew"/>
-            <arg value="3001"/>
-            <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
+            <arg line="andrew"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
     <target name="run-2">
         <java classname="app.Main" failonerror="true" fork="yes">
-            <arg value="florin"/>
-            <arg value="3002"/>
-            <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
+            <arg line="florin"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
     <target name="run-3">
         <java classname="app.Main" failonerror="true" fork="yes">
-            <arg value="ionut"/>
-            <arg value="3003"/>
-            <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
+            <arg line="ionut"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
-    <target name="hw2">
+  <target name="hw2">
         <exec executable="ant" spawn="true">
             <arg line="run-1" />
         </exec>

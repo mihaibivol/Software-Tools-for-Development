@@ -18,14 +18,14 @@ import common.SimpleFile;
 
 public class Transfer {
 	Logger logger = Logger.getLogger(Transfer.class);
-	State state;
+	protected State state;
 	
-	FileInputStream src;
+	protected FileInputStream src;
 	FileOutputStream dst;
 	ByteBuffer buffer;
 	String filename;
-	long remaining = 0;
-	long fileSize = 0;
+	protected long remaining = 0;
+	protected long fileSize = 0;
 	IUser otherUser;
 	IFile transferredFile;
 	Mediator med;
@@ -49,6 +49,7 @@ public class Transfer {
 			filename = file;
 		}
 		buffer = ByteBuffer.allocate(Network.CHUNK_SIZE);
+		buffer.flip();
 	}
 	
 	public void doWrite(SelectionKey key) throws Exception {
@@ -74,6 +75,8 @@ public class Transfer {
 			break;
 		case uploadBegin:
 			// file size is already in the buffer.
+			buffer.clear();
+			buffer.putLong(fileSize);
 			int read = src.getChannel().read(buffer);
 			remaining -= read;
 			buffer.flip();
@@ -126,15 +129,13 @@ public class Transfer {
 			String request = new String(buffer.array(), 0, endPos);
 			String requestPart[] = request.split(":");
 			File f = new File(med.getSelfUser().getHome() + requestPart[0]);
-			
+			// file:user
 			// create an upload transfer user
 			otherUser = new NetworkUser(requestPart[1], null, 0xdeadbeef);
 			transferredFile = new SimpleFile(requestPart[0]);
 			med.addDownload(med.getSelfUser(), otherUser, transferredFile);
 			
 			src = new FileInputStream(f);
-			buffer.clear();
-			buffer.putLong(f.length());
 			fileSize = f.length();
 			remaining = fileSize;
 			state = State.uploadBegin;
@@ -166,9 +167,7 @@ public class Transfer {
 				med.setDownloadProgress(otherUser, med.getSelfUser(), transferredFile, 100);
 				break;
 			}
-
-
-				
+		
 			buffer.flip();
 			while(buffer.hasRemaining()) {
 				int written = dst.getChannel().write(buffer);
