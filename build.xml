@@ -12,6 +12,8 @@
     <path id="JUnit 4.libraryclasspath">
         <pathelement location="${ECLIPSE_HOME}/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
         <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
+        <pathelement location="/usr/share/eclipse/dropins/jdt/plugins/org.junit_4.8.2.dist/junit.jar"/>
+        <pathelement location="/usr/share/eclipse/dropins/jdt/plugins/org.hamcrest.core_1.1.0.jar"/>
     </path>
     <path id="FileTransfer.classpath">
         <pathelement location="bin"/>
