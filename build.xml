@@ -65,18 +65,21 @@
     <target name="run-1">
         <java classname="app.Main" failonerror="true" fork="yes">
             <arg line="andrew"/>
+            <arg line="8081"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
     <target name="run-2">
         <java classname="app.Main" failonerror="true" fork="yes">
             <arg line="florin"/>
+            <arg line="8082"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>
     <target name="run-3">
         <java classname="app.Main" failonerror="true" fork="yes">
             <arg line="ionut"/>
+            <arg line="8083"/>
             <classpath refid="FileTransfer.classpath"/>
         </java>
     </target>

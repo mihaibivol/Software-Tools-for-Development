@@ -70,4 +70,16 @@ public class ClientServiceLocalFilesMock extends SwingWorker<IUser, IUser> imple
 			med.userEnter(user);
 		}
 	}
+
+	@Override
+	public void updateSelfFiles() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
 }

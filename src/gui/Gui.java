@@ -13,6 +13,8 @@ import common.IUser;
 import mediator.Mediator;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Gui extends JPanel implements IGui {
@@ -132,4 +134,50 @@ public class Gui extends JPanel implements IGui {
 	public IFile getSelectedFile() {
 		return fileList.getSelectedValue();
 	}
+
+	@Override
+	public void refreshUsers(List<IUser> users) {
+		ArrayList<IUser> newUsers = new ArrayList<IUser>();
+		ArrayList<IUser> removedUsers = new ArrayList<IUser>();
+		for (IUser ru: users) {
+			int i;
+			for (i = 0; i < this.users.size(); i++) {
+				IUser lu = this.users.get(i);
+				
+				if (lu.getName().equals(ru.getName())) {
+					if (lu.getFiles().size() != ru.getFiles().size()) {
+						this.users.set(i, ru);
+					}
+					break;
+				}
+			}
+			if (i >= this.users.size()) {
+				newUsers.add(ru);
+			}
+		}
+		
+		for (int i = 0; i < this.users.size(); i++) {
+			boolean found = false;
+			for (IUser ru: users) {
+				if (ru.getName().equals(this.users.get(i).getName())) {
+					found = true;
+					break;
+				}
+			}
+			
+			if (!found) {
+				removedUsers.add(this.users.get(i));
+			}
+		}
+		
+		for (IUser u : newUsers) {
+			this.users.addElement(u);
+		}
+		
+		for (IUser u : removedUsers) {
+			this.users.removeElement(u);
+		}
+	}
+
+	
 }

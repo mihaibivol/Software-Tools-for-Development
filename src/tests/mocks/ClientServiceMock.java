@@ -72,4 +72,16 @@ public class ClientServiceMock extends SwingWorker<IUser, IUser> implements ICli
 		}
 	}
 
+	@Override
+	public void updateSelfFiles() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

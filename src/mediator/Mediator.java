@@ -1,5 +1,7 @@
 package mediator;
 
+import java.util.List;
+
 import common.IFile;
 import common.IUser;
 import common.LocalUser;
@@ -34,6 +36,10 @@ public class Mediator {
 		//TODO remove user downloads from gui
 	}
 	
+	public void refreshUsers(List<IUser> users) {
+		gui.refreshUsers(users);;
+	}
+	
 	/* Gui from Network specific actions */
 	public void addDownload(IUser src, IUser dest, IFile file) {
 		gui.addDownload(src, dest, file);
@@ -42,6 +48,10 @@ public class Mediator {
 	public void setDownloadProgress(IUser src, IUser dest, IFile file, int progress) {
 		System.out.println("Set progress: " + progress);
 		gui.setDownloadProgress(src, dest, file, progress);
+		
+		if (progress >= 100) {
+			clientService.updateSelfFiles();
+		}
 	}
 	
 	/* Network from gui specific actions */
@@ -52,5 +62,9 @@ public class Mediator {
 	/* ClientService specific actions */
 	public LocalUser getSelfUser() {
 		return clientService.getSelfUser();
+	}
+	
+	public void exit() {
+		clientService.exit();
 	}
 }

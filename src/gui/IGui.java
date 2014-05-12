@@ -1,6 +1,7 @@
 package gui;
 
 import java.util.EventListener;
+import java.util.List;
 
 import javax.swing.event.ListSelectionListener;
 
@@ -13,4 +14,6 @@ public interface IGui extends EventListener, ListSelectionListener {
 	
 	public void addDownload(IUser src, IUser dest, IFile file);
 	public void setDownloadProgress(IUser src, IUser dest, IFile file, int progress);
+	
+	public void refreshUsers(List<IUser> users);
 }
